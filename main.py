@@ -1,18 +1,18 @@
 from bs4 import BeautifulSoup
 import requests
-
-r = requests.get("https://www.palas.ie/")
+url = "https://www.palas.ie/"
+r = requests.get(url)
 soup = BeautifulSoup(r.content, 'lxml')
-listOfMovies = []
-headings = soup.find_all("div",class_="film")
-for h in headings:
-    movieInfo = {}
-    title = h.find("h3")
-    time = h.find("div",class_="times")
-    times = time.find("a")
-    if times:
-         print(f'{title.text}: {times.text}')
-         movieInfo['title'] = title.text
-         movieInfo['times'] = times.text
-         listOfMovies.append(movieInfo)
-    
+
+
+list = soup.find_all("div", class_="film")
+
+for film in list:
+    str = ""
+    title = film.find("h3").find("a")
+    str += title.text+":"
+    timeSlots = film.find("div",class_="times")
+    times = timeSlots.find_all("a")
+    for time in times:
+        str+= " " + time.text
+    print(str)
