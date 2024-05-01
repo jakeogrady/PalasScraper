@@ -82,4 +82,7 @@ printMovies(films)
 
 choice = getUserChoice(url)
 newUrl = createNewURL(url, choice)
+webResponse = fetchPage(newUrl)
+movieSoup = BeautifulSoup(webResponse, "lxml")
+
 ### unfinished
