@@ -8,7 +8,11 @@ import sys
 def fetchPage(url):
     try:
         response = requests.get(url)
-        print(response.content)
+        if response.status_code == 200:
+            print("Success",end="")
+        else:
+            print(f"Page not found {url}")
+            sys.exit(1)
         return response.content
     except requests.RequestException as e:
         print(f"Error fetching {url}: {e}")
@@ -23,8 +27,6 @@ def parseMovies(soup):
     return films
 
 def printMovies(films):
-    
-    print("Movies:",end="")
     for film in films:
         movieName = film.h3.text
         movieTimes = film.find_all("div", class_="times")
@@ -39,7 +41,7 @@ def printMovies(films):
         print("\n")
             
 def getUserChoice(url):
-    movieRequest = input("\n\nWhat movie would you like to find more about? Type 'Exit' to exit:\n")
+    movieRequest = input("What movie would you like to find more about? Type 'Exit' to exit:\n")
     return movieRequest
 
 def createNewURL(url,movieRequest):
@@ -52,29 +54,16 @@ def createNewURL(url,movieRequest):
 
 
     
-def getPalasDetails(url):
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content,"lxml")
-    
-    filmDetails = soup.find("section", class_="film-details")
-    title = filmDetails.find("strong")
-    castAndCrew = filmDetails.find("div",class_="details")
-    synopsis = filmDetails.find("div",class_="synopsis").p.text
-    
-    print(title)
+def getPalasDetails(soup):
+    castAndCrew = soup.find("div",class_="details")
+    synopsis = soup.find("div",class_="synopsis").p.text
     for child in castAndCrew.children:
         print(child.text)
-    print(synopsis)
+        
+    print(f"\nSynopsis:\n{synopsis}")
     
-    listofTimes = filmDetails.find("div","showtimes").ul
-    for child in listofTimes.children:
-        print(child.em.text)
-        palasTimes = listofTimes.find("div","picktime")
-        for time in palasTimes:
-            print(time.text.replace("\n"," "),end="")
-        print("\n")
     
-url = "https://www.palas.ie/" 
+url = "https://www.palas.ie" 
 webResponse = fetchPage(url)
 soup = BeautifulSoup(webResponse,"lxml")
 films = parseMovies(soup)
@@ -84,5 +73,4 @@ choice = getUserChoice(url)
 newUrl = createNewURL(url, choice)
 webResponse = fetchPage(newUrl)
 movieSoup = BeautifulSoup(webResponse, "lxml")
-
-### unfinished
+getPalasDetails(movieSoup)
